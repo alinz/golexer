@@ -3,22 +3,28 @@ package golexer
 import (
 	"bytes"
 	"testing"
+	"unicode/utf8"
 )
 
 func TestLexerNext(t *testing.T) {
-	input := bytes.NewBufferString(`Hello World`)
+	var runes []rune
 
-	matched := []rune{
-		'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd',
+	const str = `Hello World سلام دنیا`
+	for i, w := 0, 0; i < len(str); i += w {
+		runeValue, width := utf8.DecodeRuneInString(str[i:])
+		runes = append(runes, runeValue)
+		w = width
 	}
+
+	input := bytes.NewBufferString(str)
 
 	lexer := New(input, 10)
 
 	var val rune
-	for i := 0; i < len(matched); i++ {
+	for i := 0; i < len(runes); i++ {
 		val = lexer.Next()
-		if matched[i] != val {
-			t.Errorf("got '%s' instead of '%s", string(matched[i]), string(val))
+		if runes[i] != val {
+			t.Errorf("got '%s' instead of '%s", string(runes[i]), string(val))
 		}
 	}
 
