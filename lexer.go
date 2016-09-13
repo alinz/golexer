@@ -6,6 +6,7 @@ import (
 	"unicode/utf8"
 )
 
+//Lexer lexer struct
 type Lexer struct {
 	input       io.Reader
 	buffer      []byte
@@ -78,6 +79,32 @@ func (l *Lexer) PeekNth(n int) rune {
 	return val
 }
 
+// Accept consumes the next rune if contains inside valid
+func (l *Lexer) Accept(valid string) bool {
+	val := l.Next()
+	index := strings.IndexRune(valid, val)
+	if index != -1 {
+		return true
+	}
+	if val != 0 {
+		l.Backup()
+	}
+	return false
+}
+
+// AcceptRun crunch over the remaing runes and it keeps going until it gets to
+// a point which Next rune doesn't part of valid string
+func (l *Lexer) AcceptRun(valid string) {
+	val := l.Next()
+	//call next method until valid is not inside next item
+	for val != 0 && strings.IndexRune(valid, val) != -1 {
+		val = l.Next()
+	}
+	if val != 0 {
+		l.Backup()
+	}
+}
+
 // AcceptRunUntil it does exatcly as AcceptRun but in reverse way. It consumes runes
 // until it find one that match the notValid one.
 // as an example you want to read everythign until '\n'
@@ -94,6 +121,8 @@ func (l *Lexer) AcceptRunUntil(notValid string) {
 	}
 }
 
+// Next reads the next rune in the buffer.
+// internally controls the flow of stream by using fixed buffer
 func (l *Lexer) Next() rune {
 	length := len(l.buffer)
 
@@ -128,11 +157,12 @@ func (l *Lexer) read() {
 	}
 }
 
-func New(input io.Reader) *Lexer {
+//New creates a lexer object with all the proper internal variables
+func New(input io.Reader, bufferSize int) *Lexer {
 	return &Lexer{
 		input:       input,
 		buffer:      nil,
-		fixedBuffer: make([]byte, 4),
+		fixedBuffer: make([]byte, bufferSize),
 		closed:      false,
 	}
 }

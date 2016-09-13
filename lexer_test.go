@@ -14,38 +14,16 @@ func TestLexer(t *testing.T) {
 
 	defer file.Close()
 
-	lexer := New(file)
+	lexer := New(file, 1024)
 
-	lexer.AcceptRunUntil(" ")
-	fmt.Println(lexer.CurrentString())
-	lexer.Ignore()
+	for i := 0; i < 100; i++ {
+		lexer.AcceptRunUntil("\n")
+		fmt.Printf("->%s<- %d\n", lexer.CurrentString(), len(lexer.CurrentString()))
+		lexer.Ignore()
 
-	lexer.Next()
-	lexer.Ignore()
-
-	p := lexer.PeekNth(6)
-	fmt.Println(string(p))
-
-	lexer.AcceptRunUntil(" ")
-	fmt.Println(lexer.CurrentString())
-	lexer.Ignore()
-
-	lexer.Next()
-	lexer.Ignore()
-
-	lexer.AcceptRunUntil(" ")
-	fmt.Println(lexer.CurrentString())
-	lexer.Ignore()
-
-	lexer.Next()
-	lexer.Ignore()
-
-	lexer.AcceptRunUntil(" ")
-	fmt.Println(lexer.CurrentString())
-	lexer.Ignore()
-
-	lexer.Next()
-	lexer.Ignore()
+		lexer.Next()
+		lexer.Ignore()
+	}
 
 	// lexer.AcceptRunUntil(" ")
 	// fmt.Println(lexer.CurrentString())
